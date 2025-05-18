@@ -6,7 +6,7 @@
 // Размерность матрицы (например, 3x3)
 #define DIM 3
 // Количество членов в ряде Тейлора
-#define N_TERMS 10
+#define N_TERMS 50000000
 
 // Прототипы вспомогательных функций
 double* allocate_matrix_1d(int rows, int cols);
@@ -148,15 +148,33 @@ void initialize_identity_matrix_1d(double* matrix, int dim) {
 }
 
 // Пример инициализации матрицы A (например, A_ij = i + j + 1)
+// ... existing code ...
+
+// ... existing code ...
+
+// Пример инициализации матрицы A (например, A_ij = i + j + 1)
 void initialize_matrix_A_1d(double* matrix, int dim) {
     // srand(time(NULL)); // Для случайных чисел, если используется rand()
-    for (int i = 0; i < dim; ++i) {
-        for (int j = 0; j < dim; ++j) {
-            // matrix[i * dim + j] = (double)(rand() % 10); // Пример: случайные числа от 0 до 9
-            matrix[i * dim + j] = (double)(i + 1.0); // Пример простого шаблона
+    // Убедимся, что dim соответствует ожидаемому (3 для этого примера)
+    if (dim == 3) {
+        matrix[0 * dim + 0] = 0.1; matrix[0 * dim + 1] = 0.4; matrix[0 * dim + 2] = 0.2;
+        matrix[1 * dim + 0] = 0.3; matrix[1 * dim + 1] = 0.0; matrix[1 * dim + 2] = 0.5;
+        matrix[2 * dim + 0] = 0.6; matrix[2 * dim + 1] = 0.2; matrix[2 * dim + 2] = 0.1;
+    } else {
+        // Общая инициализация, если DIM не 3 (хотя в задании он 3)
+        // Можно оставить ваш предыдущий метод или сообщить об ошибке
+        for (int i = 0; i < dim; ++i) {
+            for (int j = 0; j < dim; ++j) {
+                matrix[i * dim + j] = (double)(i * dim + j + 1.0); // Пример: 1, 2, ..., dim*dim
+            }
         }
+        // Удаленный блок:
+        // if (world_rank == 0) { 
+        //     // fprintf(stderr, "Предупреждение: initialize_matrix_A_1d вызвана с dim=%d, но ожидалась 3 для фиксированной матрицы.\n", dim);
+        // }
     }
 }
+
 
 void print_matrix_1d(const double* matrix, int rows, int cols, const char* title) {
     printf("%s\n", title);
