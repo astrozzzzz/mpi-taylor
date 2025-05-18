@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
     double* matrix_A = allocate_matrix_1d(DIM, DIM);
     double* local_sum_A = allocate_matrix_1d(DIM, DIM); // Локальная сумма членов ряда для каждого процесса
-    double* current_term = allocate_matrix_1d(DIM, DIM); // Текущий член ряда T_k = A^k/k!
+    double* current_term = allocate_matrix_1d(DIM, DIM); // Текущий член ряда T_k (или T_{k-1} в зависимости от шага)
     double* temp_matrix_mult_result = allocate_matrix_1d(DIM, DIM); // Временная матрица для результата умножения
 
     if (world_rank == 0) {
@@ -58,37 +58,69 @@ int main(int argc, char* argv[]) {
     // Инициализация локальной суммы нулями
     initialize_matrix_zeros_1d(local_sum_A, DIM, DIM);
 
-    // Инициализация current_term единичной матрицей (для члена k=0: A^0/0! = I)
-    initialize_identity_matrix_1d(current_term, DIM);
+    // --- Определение блока членов ряда для текущего процесса ---
+    // N_TERMS - это общее количество членов, включая T_0 (k=0 до N_TERMS-1)
+    int num_terms_total = N_TERMS;
+    int terms_per_rank_base = num_terms_total / world_size;
+    int remainder_terms = num_terms_total % world_size;
 
-    // --- Итеративное вычисление членов ряда A^k/k! ---
-    // current_term хранит T_k = A^k/k!
-    // T_0 = I
-    // T_k = (T_{k-1} * A) / k  для k >= 1
+    int my_start_term_index; // Начальный индекс k для этого процесса (включительно)
+    int my_end_term_index;   // Конечный индекс k для этого процесса (не включительно)
 
-    // Обработка члена k=0 (единичная матрица I)
-    if (0 % world_size == world_rank) {
-        matrix_add_1d(local_sum_A, current_term, DIM); // local_sum_A += current_term (который равен I)
+    if (world_rank < remainder_terms) {
+        // Первые 'remainder_terms' процессов получают на один член больше
+        my_start_term_index = world_rank * (terms_per_rank_base + 1);
+        my_end_term_index = my_start_term_index + (terms_per_rank_base + 1);
+    } else {
+        // Остальные процессы получают 'terms_per_rank_base' членов
+        my_start_term_index = world_rank * terms_per_rank_base + remainder_terms;
+        my_end_term_index = my_start_term_index + terms_per_rank_base;
     }
 
-    // Цикл для k = 1 до N_TERMS - 1
-    for (int k = 1; k < N_TERMS; ++k) {
-        // На данном этапе current_term хранит T_{k-1}
-        // Вычисляем T_k = (T_{k-1} * A) / k
+    // Для отладки можно раскомментировать:
+    // printf("Rank %d: отвечает за члены ряда с индексами k от %d до %d (не включая)\n", world_rank, my_start_term_index, my_end_term_index);
 
-        // Шаг 1: T_{k-1} * A
-        matrix_multiply_1d(current_term, matrix_A, temp_matrix_mult_result, DIM);
-        
-        // Шаг 2: (T_{k-1} * A) / k
-        // Результат записывается обратно в current_term, который теперь будет T_k
-        matrix_scalar_divide_1d(temp_matrix_mult_result, (double)k, current_term, DIM); 
+    // --- Инициализация current_term для начала вычислений этого процесса ---
+    // current_term будет хранить T_{k-1} перед вычислением T_k в цикле.
+    // Начинаем с T_0 = I.
+    initialize_identity_matrix_1d(current_term, DIM);
 
-        // Если текущий процесс ответственен за этот член k
-        if (k % world_size == world_rank) {
-            matrix_add_1d(local_sum_A, current_term, DIM); // local_sum_A += current_term (который T_k)
+    // Если первый член, за который отвечает процесс (my_start_term_index), не T_0,
+    // то нужно вычислить T_{my_start_term_index - 1}.
+    // current_term сейчас T_0.
+    if (my_start_term_index > 0) {
+        for (int k_pre = 1; k_pre < my_start_term_index; ++k_pre) {
+            // current_term на входе T_{k_pre - 1}
+            matrix_multiply_1d(current_term, matrix_A, temp_matrix_mult_result, DIM);
+            // temp_matrix_mult_result = T_{k_pre - 1} * A
+            matrix_scalar_divide_1d(temp_matrix_mult_result, (double)k_pre, current_term, DIM);
+            // current_term теперь T_{k_pre}
         }
-        // Барьер здесь не обязателен, так как каждый процесс независимо вычисляет
-        // последовательность T_k, используя свою копию T_{k-1} и общую matrix_A.
+        // После цикла, current_term = T_{my_start_term_index - 1}
+    }
+    // Если my_start_term_index == 0, current_term остался T_0.
+
+    // --- Итеративное вычисление и суммирование членов ряда A^k/k! для ДАННОГО процесса ---
+    // Цикл по k от my_start_term_index до my_end_term_index - 1.
+    for (int k = my_start_term_index; k < my_end_term_index; ++k) {
+        // На входе в итерацию:
+        // - Если k = 0 (и my_start_term_index = 0), current_term = T_0. Это и есть нужный член.
+        // - Если k > 0, current_term = T_{k-1}. Нужно вычислить T_k.
+
+        if (k == 0) {
+            // current_term это T_0. Добавляем его в локальную сумму.
+            // Он останется T_0 для следующей итерации (k=1), где он будет T_{k-1}.
+            matrix_add_1d(local_sum_A, current_term, DIM);
+        } else {
+            // current_term это T_{k-1}. Вычисляем T_k = (T_{k-1} * A) / k.
+            matrix_multiply_1d(current_term, matrix_A, temp_matrix_mult_result, DIM);
+            // temp_matrix_mult_result = T_{k-1} * A
+            // Обновляем current_term до T_k (результат T_k записывается в current_term).
+            matrix_scalar_divide_1d(temp_matrix_mult_result, (double)k, current_term, DIM);
+            // current_term теперь T_k. Добавляем его в локальную сумму.
+            matrix_add_1d(local_sum_A, current_term, DIM);
+        }
+        // После этой итерации current_term хранит T_k, который будет T_{ (k+1) - 1 } для следующей итерации.
     }
 
     double* final_exp_A = NULL; // Матрица для финального результата на процессе 0
@@ -146,11 +178,6 @@ void initialize_identity_matrix_1d(double* matrix, int dim) {
         matrix[i * dim + i] = 1.0; // Диагональные элементы равны 1
     }
 }
-
-// Пример инициализации матрицы A (например, A_ij = i + j + 1)
-// ... existing code ...
-
-// ... existing code ...
 
 // Пример инициализации матрицы A (например, A_ij = i + j + 1)
 void initialize_matrix_A_1d(double* matrix, int dim) {
