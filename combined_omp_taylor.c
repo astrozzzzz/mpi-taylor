@@ -5,7 +5,7 @@
 
 #define SIZE 3
 #define N_TERMS 50000000
-#define NUM_MY_THREADS 1 // Определяем желаемое количество потоков
+// #define NUM_MY_THREADS 1 // Определяем желаемое количество потоков - УДАЛЕНО
 
 typedef struct {
     double data[SIZE][SIZE];
@@ -126,8 +126,8 @@ int main(int argc, char *argv[]) {
 
     double start_time = omp_get_wtime(); // Используем таймер OpenMP
 
-    // Устанавливаем количество потоков перед параллельной областью
-    omp_set_num_threads(NUM_MY_THREADS); 
+    // Устанавливаем количество потоков перед параллельной областью - УДАЛЕНО
+    // omp_set_num_threads(NUM_MY_THREADS); 
 
     long M_jump_size = (long)sqrt((double)N_TERMS);
     if (M_jump_size == 0) M_jump_size = 1;
