@@ -1,0 +1,70 @@
+Sender: LSF System <lsfadmin@node2.kepler.hpc.local>
+Subject: Job 16485: <OMP_16_threads_run6> in cluster <kepler.lsf.hpc.local> Done
+
+Job <OMP_16_threads_run6> was submitted from host <mgr.kepler.hpc.local> by user <nikita.lazarev.20033.gmail.com> in cluster <kepler.lsf.hpc.local> at Sun May 25 15:39:48 2025
+Job was executed on host(s) <node2.kepler.hpc.local>, in queue <normal>, as user <nikita.lazarev.20033.gmail.com> in cluster <kepler.lsf.hpc.local> at Sun May 25 15:40:15 2025
+</home/nikita.lazarev.20033.gmail.com> was used as the home directory.
+</home/nikita.lazarev.20033.gmail.com> was used as the working directory.
+Started at Sun May 25 15:40:15 2025
+Terminated at Sun May 25 15:41:02 2025
+Results reported at Sun May 25 15:41:02 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J OMP_16_threads_run6
+#BSUB -W 03:20
+#BSUB -n 1
+#BSUB -o logs/output_OMP_16_threads_run6_%J.out
+#BSUB -e logs/error_OMP_16_threads_run6_%J.err
+#BSUB -M 2GB
+
+export OMP_NUM_THREADS=16
+./combined_omp_taylor
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   20.48 sec.
+    Max Memory :                                 7 MB
+    Average Memory :                             5.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                20
+    Run time :                                   59 sec.
+    Turnaround time :                            74 sec.
+
+The output (if any) follows:
+
+============================================================
+Результаты вычисления экспоненты матрицы e^A (OpenMP):
+============================================================
+Исходная матрица A:
+  0.200000   0.300000   0.500000 
+  0.600000   0.100000   0.300000 
+  0.200000   0.300000   0.100000 
+
+Результат e^A (аппроксимация рядом Тейлора):
+  1.413568   0.460615   0.673229 
+  0.779536   1.283645   0.531462 
+  0.354308   0.389768   1.236414 
+
+------------------------------------------------------------
+Затраченное время: 24.079708 секунд
+Количество членов ряда N_TERMS: 50000000
+Размер матрицы SIZE: 3
+Количество OpenMP потоков: 16
+============================================================
+
+
+PS:
+
+Read file <logs/error_OMP_16_threads_run6_16485.err> for stderr output of this job.
+

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #define SIZE 3
-#define N_TERMS 500000000
+#define N_TERMS 50000000
 
 typedef struct {
     double data[SIZE][SIZE];

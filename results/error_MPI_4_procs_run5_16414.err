@@ -1,0 +1,8 @@
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   node4
+  Local device: mlx4_0
+--------------------------------------------------------------------------
+[node4.kepler.hpc.local:3789616] 15 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[node4.kepler.hpc.local:3789616] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages

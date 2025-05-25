@@ -1,0 +1,70 @@
+Sender: LSF System <lsfadmin@node2.kepler.hpc.local>
+Subject: Job 16473: <OMP_8_threads_run4> in cluster <kepler.lsf.hpc.local> Done
+
+Job <OMP_8_threads_run4> was submitted from host <mgr.kepler.hpc.local> by user <nikita.lazarev.20033.gmail.com> in cluster <kepler.lsf.hpc.local> at Sun May 25 15:39:44 2025
+Job was executed on host(s) <node2.kepler.hpc.local>, in queue <normal>, as user <nikita.lazarev.20033.gmail.com> in cluster <kepler.lsf.hpc.local> at Sun May 25 15:40:15 2025
+</home/nikita.lazarev.20033.gmail.com> was used as the home directory.
+</home/nikita.lazarev.20033.gmail.com> was used as the working directory.
+Started at Sun May 25 15:40:15 2025
+Terminated at Sun May 25 15:41:10 2025
+Results reported at Sun May 25 15:41:10 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J OMP_8_threads_run4
+#BSUB -W 02:10
+#BSUB -n 1
+#BSUB -o logs/output_OMP_8_threads_run4_%J.out
+#BSUB -e logs/error_OMP_8_threads_run4_%J.err
+#BSUB -M 1GB
+
+export OMP_NUM_THREADS=8
+./combined_omp_taylor
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   19.32 sec.
+    Max Memory :                                 8 MB
+    Average Memory :                             6.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                12
+    Run time :                                   59 sec.
+    Turnaround time :                            86 sec.
+
+The output (if any) follows:
+
+============================================================
+Результаты вычисления экспоненты матрицы e^A (OpenMP):
+============================================================
+Исходная матрица A:
+  0.200000   0.300000   0.500000 
+  0.600000   0.100000   0.300000 
+  0.200000   0.300000   0.100000 
+
+Результат e^A (аппроксимация рядом Тейлора):
+  1.413568   0.460615   0.673229 
+  0.779536   1.283645   0.531462 
+  0.354308   0.389768   1.236414 
+
+------------------------------------------------------------
+Затраченное время: 31.533001 секунд
+Количество членов ряда N_TERMS: 50000000
+Размер матрицы SIZE: 3
+Количество OpenMP потоков: 8
+============================================================
+
+
+PS:
+
+Read file <logs/error_OMP_8_threads_run4_16473.err> for stderr output of this job.
+

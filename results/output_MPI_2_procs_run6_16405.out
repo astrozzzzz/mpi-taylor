@@ -1,0 +1,71 @@
+Sender: LSF System <lsfadmin@node3.kepler.hpc.local>
+Subject: Job 16405: <MPI_2_procs_run6> in cluster <kepler.lsf.hpc.local> Done
+
+Job <MPI_2_procs_run6> was submitted from host <mgr.kepler.hpc.local> by user <nikita.lazarev.20033.gmail.com> in cluster <kepler.lsf.hpc.local> at Sun May 25 15:39:21 2025
+Job was executed on host(s) <2*node3.kepler.hpc.local>, in queue <normal>, as user <nikita.lazarev.20033.gmail.com> in cluster <kepler.lsf.hpc.local> at Sun May 25 15:39:21 2025
+</home/nikita.lazarev.20033.gmail.com> was used as the home directory.
+</home/nikita.lazarev.20033.gmail.com> was used as the working directory.
+Started at Sun May 25 15:39:21 2025
+Terminated at Sun May 25 15:39:51 2025
+Results reported at Sun May 25 15:39:51 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J MPI_2_procs_run6
+#BSUB -W 00:05
+#BSUB -n 2
+#BSUB -R "span[ptile=2]"
+#BSUB -o logs/output_MPI_2_procs_run6_%J.out
+#BSUB -e logs/error_MPI_2_procs_run6_%J.err
+#BSUB -M 512MB
+
+module load mpi/openmpi-x86_64
+mpirun --bind-to core --map-by core ./combined_mpi_taylor
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   33.73 sec.
+    Max Memory :                                 901 MB
+    Average Memory :                             321.83 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              20
+    Max Threads :                                88
+    Run time :                                   29 sec.
+    Turnaround time :                            30 sec.
+
+The output (if any) follows:
+
+============================================================
+Результаты вычисления экспоненты матрицы e^A:
+============================================================
+Исходная матрица A:
+  0.200000   0.300000   0.500000 
+  0.600000   0.100000   0.300000 
+  0.200000   0.300000   0.100000 
+
+Результат e^A (аппроксимация рядом Тейлора):
+  1.413568   0.460615   0.673229 
+  0.779536   1.283645   0.531462 
+  0.354308   0.389768   1.236414 
+
+------------------------------------------------------------
+Затраченное время: 15.396351 секунд
+Количество членов ряда N_TERMS: 50000000
+Размер матрицы SIZE: 3
+Количество MPI процессов: 16
+============================================================
+
+
+PS:
+
+Read file <logs/error_MPI_2_procs_run6_16405.err> for stderr output of this job.
+

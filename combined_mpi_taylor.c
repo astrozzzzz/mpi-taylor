@@ -110,7 +110,7 @@ void matrix_sum_mpi_op(void *invec, void *inoutvec, int *len, MPI_Datatype *data
     double (*inout_matrix)[SIZE] = (double (*)[SIZE])inoutvec;
 
     if (*len != SIZE * SIZE) {
-        fprintf(stderr, "Error in matrix_sum_mpi_op: len mismatch!\n");
+        fprintf(stderr, "Error in matrix_sum_mpi_op\n");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
@@ -129,9 +129,9 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
     double A[SIZE][SIZE] = {
-        {1.0, 1.0, 1.0},
-        {1.0, 1.0, 1.0},
-        {1.0, 1.0, 1.0}
+        {0.2, 0.3, 0.5},
+        {0.6, 0.1, 0.3},
+        {0.2, 0.3, 0.1}
     };
 
     double global_taylor_sum[SIZE][SIZE];
